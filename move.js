@@ -106,7 +106,7 @@ function executeJump() {
     blok.snelheidY = -jumpPower;
 
     if (keyboard.ArrowLeft) {
-      blok.snelheidX = -jumpPower * 0.38;
+      blok.snelheidX = -jumpPower * 0.4;
     } else if (keyboard.ArrowRight) {
       blok.snelheidX = jumpPower * 0.4;
     } else {
