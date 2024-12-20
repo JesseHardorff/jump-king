@@ -1,12 +1,13 @@
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #87CEEB;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #87ceeb;
+  overflow: hidden;
 }
+
 canvas {
-    border: 2px solid black;
-    background-color: #87CEEB;
+  background-color: #87ceeb;
 }
