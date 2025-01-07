@@ -5,5 +5,5 @@ canvas.height = window.innerHeight;
 export const config = {
   canvasBreedte: canvas.width,
   canvasHoogte: canvas.height,
-  GROUND_HEIGHT: 80,
+  GROUND_HEIGHT: 65,
 };
