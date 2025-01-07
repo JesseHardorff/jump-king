@@ -1,28 +1,107 @@
-// Canvas setup voor het spel scherm
+// Canvas setup first
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const canvasBreedte = canvas.width;
-const canvasHoogte = canvas.height;
+let canvasBreedte = window.innerWidth;
+let canvasHoogte = window.innerHeight;
+canvas.width = canvasBreedte;
+canvas.height = canvasHoogte;
 
-// Basis instellingen voor de grond
-const GROUND_HEIGHT = 80;
+// Rest of your fullscreen handling code...
+
+// Fullscreen handling
+let isFullscreen = false;
+let gameInitialized = false;
+
+function enterFullscreen() {
+  if (canvas.requestFullscreen) {
+    canvas.requestFullscreen();
+  }
+}
+function initializeGame() {
+  // Update canvas dimensions
+  canvasBreedte = window.innerWidth;
+  canvasHoogte = window.innerHeight;
+  canvas.width = canvasBreedte;
+  canvas.height = canvasHoogte;
+
+  // Update game state properties
+  gameState.currentScreen = 0;
+  gameState.screenTransition.active = false;
+  gameState.screenTransition.offset = 0;
+  gameState.screenTransition.targetOffset = 0;
+
+  // Initialize player block
+  blok.x = canvasBreedte / 2 - 25;
+  blok.y = canvasHoogte - GROUND_HEIGHT - 50;
+
+  gameInitialized = true;
+}
+      
+// Check if previously was in fullscreen and restore it
+if (localStorage.getItem("wasFullscreen") === "true") {
+  enterFullscreen();
+}
+
+// Store fullscreen state when it changes
+document.addEventListener("fullscreenchange", () => {
+  localStorage.setItem("wasFullscreen", document.fullscreenElement !== null);
+});
+
+function exitHandler() {
+  isFullscreen = document.fullscreenElement !== null;
+  if (isFullscreen && !gameInitialized) {
+    initializeGame();
+  }
+}
+
+// Event listeners for fullscreen
+document.addEventListener("fullscreenchange", exitHandler);
+window.addEventListener("keydown", (e) => {
+  if (e.key === "F11") {
+    enterFullscreen();
+    e.preventDefault();
+  }
+});
+
+// Modified game loop
+function spelLus() {
+  if (!isFullscreen) {
+    // Show fullscreen prompt
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillRect(0, 0, canvasBreedte, canvasHoogte);
+    ctx.fillStyle = "white";
+    ctx.font = "30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Press F11 for Fullscreen", canvasBreedte / 2, canvasHoogte / 2);
+  } else if (gameInitialized) {
+    // Run game only when fullscreen and initialized
+    ctx.clearRect(0, 0, canvasBreedte, canvasHoogte);
+    drawScreen(gameState.currentScreen, 0);
+    ctx.fillStyle = blok.kleur;
+    ctx.fillRect(blok.x, blok.y, blok.breedte, blok.hoogte);
+    updateBlok();
+  }
+  requestAnimationFrame(spelLus);
+}
+
+// Import configurations
+import { config } from "./config.js";
+import { LEVEL_DATA } from "./levels.js";
+
+// Ground settings
+const GROUND_HEIGHT = window.innerHeight * 0.1;
 const GROUND_COLOR = "#4a4a4a";
 
-// Haalt de verschillende levels op uit een extern bestand
-import { config } from "./config.js";
+// Initialize levels
+const levels = [LEVEL_DATA.level1, LEVEL_DATA.level2];
 
-import { getLevelData } from "./levels.js";
-const levels = [getLevelData().level1, getLevelData().level2];
-
-// Houdt de huidige status van het spel bij, zoals in welk level we zitten
+// Game state management
 const gameState = {
   currentScreen: 0,
   screenTransition: {
-    active: false, // Wordt true tijdens level overgang
-    offset: 0, // Huidige verschuiving van het scherm
-    targetOffset: 0, // Waar het scherm naartoe moet schuiven
+    active: false,
+    offset: 0,
+    targetOffset: 0,
   },
 };
 
@@ -332,21 +411,6 @@ function drawScreen(screenIndex, offset) {
   for (const platform of level.platforms) {
     ctx.fillRect(platform.x, platform.y - offset, platform.width, platform.height);
   }
-}
-
-// Hoofdloop van het spel
-function spelLus() {
-  // Wist het scherm
-  ctx.clearRect(0, 0, canvasBreedte, canvasHoogte);
-  // Tekent het level
-  drawScreen(gameState.currentScreen, 0);
-  // Tekent de speler
-  ctx.fillStyle = blok.kleur;
-  ctx.fillRect(blok.x, blok.y, blok.breedte, blok.hoogte);
-  // Update spelermechanica
-  updateBlok();
-  // Vraagt volgende frame aan
-  requestAnimationFrame(spelLus);
 }
 
 // Past canvas grootte aan bij window resize
